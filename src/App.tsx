@@ -1,6 +1,5 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
 
 function App() {
@@ -69,6 +68,17 @@ function App() {
     }
   };
 
+  // Function to delete a file from the OPFS
+  const deleteFile = async () => {
+    try {
+      const rootDir = await navigator.storage.getDirectory();
+      await rootDir.removeEntry(fileName);
+      setOutput(`File "${fileName}" deleted successfully!`);
+    } catch (error) {
+      setOutput(`Error deleting file: ${error}`);
+    }
+  };
+
   return (
     <div>
       <h1>Origin Private File System Test</h1>
@@ -94,6 +104,7 @@ function App() {
       <button onClick={writeFile}>Write File</button>
       <button onClick={readFile}>Read File</button>
       <button onClick={saveFileToOS}>Save File to OS</button>
+      <button onClick={deleteFile}>Delete File</button>
       {output && <p>{output}</p>}
     </div>
   );
