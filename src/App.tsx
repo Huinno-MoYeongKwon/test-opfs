@@ -6,7 +6,7 @@ function App() {
   const [fileName, setFileName] = useState("example.txt");
   const [fileContent, setFileContent] = useState("Hello, OPFS!");
   const [output, setOutput] = useState<string | null>(null);
-  const [directoryName, setDirectoryName] = useState("myDirectory");
+  const [directoryName] = useState("myDirectory");
 
   // Function to write a file to the OPFS
   const writeFile = async () => {
