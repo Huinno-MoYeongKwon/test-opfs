@@ -11,12 +11,22 @@ function App() {
   // Function to write a file to the OPFS
   const writeFile = async () => {
     try {
+      // OPFS의 루트 디렉토리를 가져옵니다.
       const rootDir = await navigator.storage.getDirectory();
+
+      // 파일을 생성하고 쓰기 권한을 부여합니다.
       const fileHandle = await rootDir.getFileHandle(fileName, {
+        // 파일이 이미 존재하면 덮어쓰기를 합니다.
         create: true,
       });
+
+      // 파일에 쓸 수 있도록 writable stream을 생성합니다.
       const writableStream = await fileHandle.createWritable();
+
+      // 파일에 내용을 씁니다.
       await writableStream.write(fileContent);
+
+      // 파일을 닫습니다. - 이 시점에서 파일에 반영됩니다.
       await writableStream.close();
       setOutput(`File "${fileName}" written successfully!`);
     } catch (error) {
@@ -27,9 +37,16 @@ function App() {
   // Function to read a file from the OPFS
   const readFile = async () => {
     try {
+      // OPFS의 루트 디렉토리를 가져옵니다.
       const rootDir = await navigator.storage.getDirectory();
+
+      // 파일을 읽기 위해 파일 핸들을 가져옵니다.
       const fileHandle = await rootDir.getFileHandle(fileName);
+
+      // 파일을 가져와서 file object로 변환합니다.
       const file = await fileHandle.getFile();
+
+      // 파일의 내용을 읽어옵니다.
       const text = await file.text();
       setOutput(`File content: ${text}`);
     } catch (error) {
@@ -40,12 +57,19 @@ function App() {
   // Function to save file to OS file system
   const saveFileToOS = async () => {
     try {
+      // OPFS의 루트 디렉토리를 가져옵니다.
       const rootDir = await navigator.storage.getDirectory();
+
+      // 파일을 읽기 위해 파일 핸들을 가져옵니다.
       const fileHandle = await rootDir.getFileHandle(fileName);
+
+      // 파일을 가져와서 Blob으로 변환합니다.
       const file = await fileHandle.getFile();
+
+      // Blob을 생성합니다.
       const blob = new Blob([await file.text()], { type: "text/plain" });
 
-      // Check if the File System Access API is supported
+      // File System Access API 지원 여부를 확인합니다.
       if ("showSaveFilePicker" in window) {
         const saveHandle = await (window as any).showSaveFilePicker({
           suggestedName: fileName,
@@ -55,7 +79,7 @@ function App() {
         await writableStream.close();
         setOutput(`File "${fileName}" saved to OS!`);
       } else {
-        // Fallback to using a download link
+        // File System Access API를 지원하지 않는 경우 다른 방법으로 파일을 저장합니다.
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -69,7 +93,7 @@ function App() {
     }
   };
 
-  // Function to delete a file from the OPFS
+  // OPFS에서 파일을 삭제하는 함수
   const deleteFile = async () => {
     try {
       const rootDir = await navigator.storage.getDirectory();
@@ -80,7 +104,7 @@ function App() {
     }
   };
 
-  // Function to create a directory in the OPFS
+  // OPFS에서 디렉토리를 생성하는 함수
   const createDirectory = async () => {
     try {
       const rootDir = await navigator.storage.getDirectory();
@@ -91,7 +115,7 @@ function App() {
     }
   };
 
-  // Function to import an external file into the OPFS
+  // 외부로부터 파일을 OPFS로 가져오는 함수
   const importFileToOPFS = async (file: File) => {
     try {
       const rootDir = await navigator.storage.getDirectory();
@@ -113,7 +137,7 @@ function App() {
     }
   };
 
-  // Function to handle file selection from the input
+  // 파일 선택 시 호출되는 함수
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
