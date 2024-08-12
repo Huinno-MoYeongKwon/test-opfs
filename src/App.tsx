@@ -6,6 +6,7 @@ function App() {
   const [fileName, setFileName] = useState("example.txt");
   const [fileContent, setFileContent] = useState("Hello, OPFS!");
   const [output, setOutput] = useState<string | null>(null);
+  const [directoryName, setDirectoryName] = useState("myDirectory");
 
   // Function to write a file to the OPFS
   const writeFile = async () => {
@@ -79,6 +80,47 @@ function App() {
     }
   };
 
+  // Function to create a directory in the OPFS
+  const createDirectory = async () => {
+    try {
+      const rootDir = await navigator.storage.getDirectory();
+      await rootDir.getDirectoryHandle(directoryName, { create: true });
+      setOutput(`Directory "${directoryName}" created successfully!`);
+    } catch (error) {
+      setOutput(`Error creating directory: ${error}`);
+    }
+  };
+
+  // Function to import an external file into the OPFS
+  const importFileToOPFS = async (file: File) => {
+    try {
+      const rootDir = await navigator.storage.getDirectory();
+      const dirHandle = await rootDir.getDirectoryHandle(directoryName, {
+        create: true,
+      });
+      const fileHandle = await dirHandle.getFileHandle(file.name, {
+        create: true,
+      });
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(file);
+      await writableStream.close();
+      setFileName(file.name);
+      setOutput(
+        `File "${file.name}" imported successfully into "${directoryName}"!`
+      );
+    } catch (error) {
+      setOutput(`Error importing file: ${error}`);
+    }
+  };
+
+  // Function to handle file selection from the input
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      importFileToOPFS(files[0]);
+    }
+  };
+
   return (
     <div>
       <h1>Origin Private File System Test</h1>
@@ -101,10 +143,18 @@ function App() {
           />
         </label>
       </div>
+
       <button onClick={writeFile}>Write File</button>
       <button onClick={readFile}>Read File</button>
       <button onClick={saveFileToOS}>Save File to OS</button>
       <button onClick={deleteFile}>Delete File</button>
+      <button onClick={createDirectory}>Create Directory</button>
+      <div>
+        <label>
+          Import File:
+          <input type="file" onChange={handleFileSelect} />
+        </label>
+      </div>
       {output && <p>{output}</p>}
     </div>
   );
